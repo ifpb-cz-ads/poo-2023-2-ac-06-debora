@@ -1,11 +1,9 @@
 package view;
 
+import dao.UsuarioDao;
 import model.Agenda;
 import model.Usuario;
 import javax.swing.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +17,7 @@ public class Main {
         operacoes();
     }
     private static void operacoes() {
+        UsuarioDao dao = new UsuarioDao();
             int operacao = Integer.parseInt(JOptionPane.showInputDialog("------SELECIONE UMA OPERAÇÃO------\n" +
                             "| 1- CRIAR USUÁRIO |\n" +
                             "| 2- LISTAR USUÁRIOS |\n" +
@@ -33,16 +32,24 @@ public class Main {
                     criarUsuario();
                     break;
                 case 2:
-                    int retorno2 = JOptionPane.showConfirmDialog(null,
-                            "Deseja continuar?", "Mensagem do sistema",
-                            JOptionPane.YES_NO_OPTION);
-                    List<model.Usuario> usuarios = listarUsuarios();
+                    List<Usuario> usuarios = dao.listarUsuarios();
+                    JOptionPane.showMessageDialog(null,
+                            usuarios, "MENSAGEM DO SISTEMA",
+                            JOptionPane.INFORMATION_MESSAGE);
                     break;
                 case 3:
-                    int retorno3 = JOptionPane.showConfirmDialog(null,
-                            "Deseja continuar?", "Mensagem do sistema",
-                            JOptionPane.YES_NO_OPTION);
-                    buscarPorEmail();
+                    String email = (String) JOptionPane.showInputDialog("DIGITE O EMAIL QUE DESEJA ACESSAR:");
+                    Usuario usuario = dao.buscarPorEmail(email);
+                    if(usuario != null){
+                        JOptionPane.showMessageDialog(null,
+                                usuario, "LISTAGEM",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null,
+                                "USUÁRIO NÃO EXISTE!", "MENSAGEM DO SISTEMA",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                     break;
                 case 4:
                     int retorno4 = JOptionPane.showConfirmDialog(null,
@@ -66,38 +73,12 @@ public class Main {
         usuario.setSenha(JOptionPane.showInputDialog("Senha:"));
         Agenda agenda = new Agenda(usuario);
         Usuario.add(agenda);
-        JOptionPane.showMessageDialog(null, "Usuario criado!");
+        JOptionPane.showMessageDialog(null, "USUÁRIO CRIADO!");
         operacoes();
     }
 
-
-
-    public static List<Usuario> listarUsuarios(){
-        if(file.length()>0){
-            try{
-                ObjectInputStream in = new ObjectInputStream(
-                        new FileInputStream(file)
-                );
-                List<Usuario> lista = (List<Usuario>) in.readObject();
-                return lista;
-            }catch (IOException exception){
-                JOptionPane.showMessageDialog(null, exception);
-            }catch (ClassNotFoundException exception) {
-                JOptionPane.showMessageDialog(null, exception);
-            }
-        }
-        return new ArrayList<>();
-    }
-    public static Usuario buscarPorEmail(){
-        List<Usuario> usuarios = listarUsuarios();
-        for(Usuario usuario : usuarios){
-            if(usuario.getEmail().equals(email)){
-                return usuario;
-            }
-        }
-        return null;
-    }
 }
+
 
 
 
